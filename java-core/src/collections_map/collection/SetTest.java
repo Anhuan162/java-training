@@ -1,4 +1,4 @@
-package collections_map.list;
+package collections_map.collection;
 
 import java.util.*;
 
