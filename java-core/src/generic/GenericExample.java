@@ -25,6 +25,13 @@ class UserRepository implements Repository<User> {
     }
 }
 
+class People {
+    protected String name;
+}
+
+class Man extends People{
+}
+
 public class GenericExample {
 
     public static void main(String[] args) {
@@ -36,6 +43,7 @@ public class GenericExample {
         user.setName("John");
         UserRepository repo = new UserRepository();
         repo.save(user);
+
     }
 
 }
