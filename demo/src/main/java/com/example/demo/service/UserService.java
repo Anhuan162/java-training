@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserCreatedRequest;
 import com.example.demo.dto.request.UserUpdatedRequest;
 import com.example.demo.entity.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.UserRepository;
 import java.util.List;
@@ -15,6 +17,8 @@ public class UserService {
   @Autowired private UserMapper userMapper;
 
   public User createUser(UserCreatedRequest userCreatedRequest) {
+    if (userRepository.existsByUsername(userCreatedRequest.getUsername()))
+      throw new AppException(ErrorCode.USER_EXISTED);
     User user = userMapper.fromUserCreated(userCreatedRequest);
 
     return userRepository.save(user);
