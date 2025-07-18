@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.UserCreatedRequest;
 import com.example.demo.dto.request.UserUpdatedRequest;
+import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.exception.ApiResponse;
 import com.example.demo.service.UserService;
@@ -28,8 +29,8 @@ public class UserController {
   }
 
   @GetMapping
-  List<User> getUsers() {
-    return userService.getUsers();
+  ApiResponse<List<UserResponse>> getUsers() {
+    return ApiResponse.<List<UserResponse>>builder().result(userService.getUsers()).build();
   }
 
   @PutMapping("{id}")
