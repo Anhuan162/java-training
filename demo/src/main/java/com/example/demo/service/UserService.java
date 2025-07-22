@@ -14,10 +14,11 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 @Service
 @Log4j2
 public class UserService {
@@ -25,7 +26,7 @@ public class UserService {
   @Autowired private UserMapper userMapper;
   @Autowired private PasswordEncoder passwordEncoder;
 
-  public User createUser(UserCreatedRequest userCreatedRequest) {
+  public UserResponse createUser(UserCreatedRequest userCreatedRequest) {
     if (userRepository.existsByUsername(userCreatedRequest.getUsername()))
       throw new AppException(ErrorCode.USER_EXISTED);
     User user = userMapper.fromUserCreated(userCreatedRequest);
@@ -35,26 +36,42 @@ public class UserService {
     roles.add(Role.USER.name());
 
     user.setRoles(roles);
-    return userRepository.save(user);
+    userRepository.save(user);
+    return userMapper.toUserResponse(user);
   }
 
-  public User getUser(String id) {
-    return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
+  public UserResponse getMyInfo() {
+    var context = SecurityContextHolder.getContext();
+    String name = context.getAuthentication().getName();
+    return userMapper.toUserResponse(
+            userRepository
+                    .findByUsername(name)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
   }
 
+  @PostAuthorize("returnObject.username = authentication.name")
+  public UserResponse getUser(String id) {
+    User user =
+            userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
+    return userMapper.toUserResponse(user);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> getUsers() {
+    log.info("In method getUsers");
     var authorization = SecurityContextHolder.getContext().getAuthentication();
     authorization.getAuthorities().forEach(auth -> log.warn(auth.getAuthority()));
 
     return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
   }
 
-  public User updateUser(UserUpdatedRequest userUpdatedRequest, String id) {
-    User user = getUser(id);
+  public UserResponse updateUser(UserUpdatedRequest userUpdatedRequest, String id) {
+    User user =
+            userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
     userMapper.updateUser(user, userUpdatedRequest);
     user.setPassword(passwordEncoder.encode(userUpdatedRequest.getPassword()));
-
-    return userRepository.save(user);
+    userRepository.save(user);
+    return userMapper.toUserResponse(user);
   }
 
   public void deleteUser(String id) {

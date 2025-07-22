@@ -14,7 +14,7 @@ spring:
 server:
   port: 8080
   servlet:
-    context-path: /identity
+    context-path: /demo
 
 jwt:
   signerKey: "EZlMr8WycQGUTx8N3Fra8NZXY33tDbCOXv40rJ2DCAsMYDlOfP7s46+/E6ksRIeD"
