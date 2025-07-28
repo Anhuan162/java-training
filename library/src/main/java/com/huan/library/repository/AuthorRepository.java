@@ -1,0 +1,6 @@
+package com.huan.library.repository;
+
+import com.huan.library.entity.Author;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AuthorRepository extends JpaRepository<Author, Integer> {}
