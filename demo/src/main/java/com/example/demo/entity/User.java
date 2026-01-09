@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Set;
 
 @Builder
 @Data
@@ -28,4 +29,6 @@ public class User {
     private String lastName;
     private String email;
     private Date dob;
+
+    private Set<String> roles;
 }
